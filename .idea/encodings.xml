@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/realtime-dev/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev1/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev1/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-base-db/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-base-db/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-base-log/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-base-log/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-comment-info/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-comment-info/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-trade-cart-add/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-trade-cart-add/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-trade-order-cancel-detail/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-trade-order-cancel-detail/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-trade-order-detail/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-trade-order-detail/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-trade-order-pay-suc-detail/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-trade-order-pay-suc-detail/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-trade-order-refund/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-trade-order-refund/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-trade-refund-pay-suc-detail/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dwd-trade-refund-pay-suc-detail/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dws-order-window/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/realtime-dws-order-window/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev2/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-add-window/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-add-window/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-detail-window/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-detail-window/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-keyword-window/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-keyword-window/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-login-window/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-login-window/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-order-window/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-order-window/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-page-view-window/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-page-view-window/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-province-window/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/realtime-dws-province-window/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/realtime-dev3/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>
