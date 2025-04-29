@@ -57,7 +57,7 @@ public class DimApp extends BaseApp {
                         String db = jsonObj.getJSONObject("source").getString("db");
                         String op = jsonObj.getString("op");
                         String after = jsonObj.getString("after");
-                        if ("gmall".equals(db)
+                        if ("realtime_v1".equals(db)
                                 && ("c".equals(op)
                                 || "u".equals(op)
                                 || "d".equals(op)
@@ -80,8 +80,8 @@ public class DimApp extends BaseApp {
         MySqlSource<String> mysqlSource = MySqlSource.<String>builder()
                 .hostname(Constant.MYSQL_HOST)
                 .port(Constant.MYSQL_PORT)
-                .databaseList("flink")
-                .tableList("flink.table_process_dim")
+                .databaseList("realtime_v2")
+                .tableList("realtime_v2.table_process_dim")
                 .username(Constant.MYSQL_USER_NAME)
                 .password(Constant.MYSQL_PASSWORD)
                 .deserializer(new JsonDebeziumDeserializationSchema())

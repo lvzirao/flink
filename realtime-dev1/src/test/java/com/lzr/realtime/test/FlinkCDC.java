@@ -23,8 +23,8 @@ public class FlinkCDC {
         MySqlSource<String> mySqlSource = MySqlSource.<String>builder()
                 .hostname("cdh03")
                 .port(3306)
-                .databaseList("gmall") // set captured database
-                .tableList("gmall.*") // set captured table
+                .databaseList("realtime_v1") // set captured database
+                .tableList("realtime_v1.*") // set captured table
                 .username("root")
                 .password("root")
                 .deserializer(new JsonDebeziumDeserializationSchema()) // converts SourceRecord to JSON String
