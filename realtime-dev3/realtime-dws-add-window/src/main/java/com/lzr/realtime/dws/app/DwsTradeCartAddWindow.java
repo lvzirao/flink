@@ -1,6 +1,5 @@
 package com.lzr.realtime.dws.app;
 
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.lzr.realtime.base.BaseApp;
@@ -90,7 +89,7 @@ public class DwsTradeCartAddWindow extends BaseApp {
                             out.collect(jsonObj);
                             lastCartDateState.update(curCartDate);
                         }
-                    }
+                        }
                 }
         );
         // TODO 5.开窗

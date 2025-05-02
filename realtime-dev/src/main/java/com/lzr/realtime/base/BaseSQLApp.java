@@ -53,17 +53,12 @@ public abstract class BaseSQLApp {
 
     public void readOdsDb(StreamTableEnvironment tableEnv,String groupId) {
         tableEnv.executeSql("CREATE TABLE topic_db (\n" +
-                "  `database` string,\n" +
-                "  `table` string,\n" +
-                "  `type` string,\n" +
-                "  `ts` bigint,\n" +
-                "  `data` MAP<string, string>,\n" +
-                "  `old` MAP<string, string>,\n" +
-                "  pt as proctime(),\n" +
-                "  et as to_timestamp_ltz(ts, 0), " +
-                "  watermark for et as et - interval '3' second " +
-                ") " + SQLUtil.getKafkaDDL(Constant.TOPIC_DB,groupId));
-        //tableEnv.executeSql("select * from topic_db").print();
+                "  after MAP<string, string>, \n" +
+                "  source MAP<string, string>, \n" +
+                "  `op` string, \n" +
+                "  `ts_ms` bigint " +
+                ")" + SQLUtil.getKafkaDDL(Constant.TOPIC_DB, Constant.TOPIC_DWD_INTERACTION_COMMENT_INFO));
+//        tableEnv.executeSql("select * from topic_db").print();
     }
     public void readBaseDic(StreamTableEnvironment tableEnv) {
         tableEnv.executeSql("CREATE TABLE base_dic (\n" +
@@ -71,6 +66,6 @@ public abstract class BaseSQLApp {
                 " info ROW<dic_name string>,\n" +
                 " PRIMARY KEY (dic_code) NOT ENFORCED\n" +
                 ") " + SQLUtil.getHbaseDDL("dim_base_dic"));
-        //tableEnv.executeSql("select * from base_dic").print();
+//        tableEnv.executeSql("select * from base_dic").print();
     }
 }

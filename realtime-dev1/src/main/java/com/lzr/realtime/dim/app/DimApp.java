@@ -7,7 +7,6 @@ import com.lzr.realtime.bean.TableProcessDim;
 import com.lzr.realtime.constant.Constant;
 import com.lzr.realtime.dim.function.HBaseSinkFunction;
 import com.lzr.realtime.dim.function.TableProcessFunction;
-import com.lzr.realtime.util.FlinkSourceUtil;
 import com.lzr.realtime.util.HBaseUtil;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
@@ -15,25 +14,18 @@ import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
-import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.state.MapStateDescriptor;
-import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.connector.kafka.source.KafkaSource;
-import org.apache.flink.runtime.state.hashmap.HashMapStateBackend;
-import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.BroadcastConnectedStream;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.hadoop.hbase.client.Connection;
 import java.util.*;
-
 /**
  * @Package com.lzr.realtime.dim.app.DimApp
  * @Author lv.zirao
@@ -51,7 +43,7 @@ public class DimApp extends BaseApp {
         SingleOutputStreamOperator<JSONObject> jsonObjDS = kafkaStrDS.process(
                 new ProcessFunction<String, JSONObject>() {
                     @Override
-                    public void processElement(String s, ProcessFunction<String, JSONObject>.Context context, Collector<JSONObject> collector) throws Exception {
+                    public void processElement(String s, ProcessFunction<String, JSONObject>.Context context, Collector<JSONObject> collector){
 
                         com.alibaba.fastjson.JSONObject jsonObj = JSON.parseObject(s);
                         String db = jsonObj.getJSONObject("source").getString("db");
@@ -71,8 +63,8 @@ public class DimApp extends BaseApp {
                 }
         );
 //        jsonObjDS.print();
-        //TODO 5.使用cdc读取配置表中的配置信息
-        //5.1 创建mysqlSource对象
+//        //TODO 5.使用cdc读取配置表中的配置信息
+//        //5.1 创建mysqlSource对象
         Properties pro = new Properties();
         Properties props=new Properties();
         props.setProperty("useSSL","false");
@@ -91,11 +83,11 @@ public class DimApp extends BaseApp {
         //5.2 读取数据封装为流
         DataStreamSource<String> mysqlStrDs = env.fromSource(mysqlSource, WatermarkStrategy.noWatermarks(), "mysql_source");
 //        mysqlStrDs.print();
-        //TODO 6.对配置流中的数据类型转换
+//        //TODO 6.对配置流中的数据类型转换
         SingleOutputStreamOperator<TableProcessDim> tpDS = mysqlStrDs.map(
                 new MapFunction<String, TableProcessDim>() {
                     @Override
-                    public TableProcessDim  map(String jsonStr) throws Exception {
+                    public TableProcessDim  map(String jsonStr){
                         // 为了处理方便，先将jsonStr转换为jsonObj
                         JSONObject jsonObject = JSON.parseObject(jsonStr);
                         String op = jsonObject.getString("op");
@@ -113,7 +105,7 @@ public class DimApp extends BaseApp {
                 }
         ).setParallelism(1);
 //        tpDS.print();
-        //TODO 7.根据配置表中的配置信息到HBase中执行建表或者删除表操作
+//        //TODO 7.根据配置表中的配置信息到HBase中执行建表或者删除表操作
         tpDS =tpDS.map(
                 new RichMapFunction<TableProcessDim, TableProcessDim>() {
                     private Connection hbaseConn;
@@ -151,13 +143,13 @@ public class DimApp extends BaseApp {
                 }
         ).setParallelism(1);
 //        tpDS.print();
-        //TODO 8.将配置流中信息进行广播
+//        //TODO 8.将配置流中信息进行广播
         MapStateDescriptor<String, TableProcessDim> mapStateDescriptor
                 = new MapStateDescriptor("mapStateDescriptor",String.class,TableProcessDim.class);
         BroadcastStream<TableProcessDim> broadcastDS = tpDS.broadcast(mapStateDescriptor);
-        //TODO 9.将主流业务数据和广播流配置信息进行关联
+//        //TODO 9.将主流业务数据和广播流配置信息进行关联
         BroadcastConnectedStream<JSONObject, TableProcessDim> connectDS = jsonObjDS.connect(broadcastDS);
-        //TODO 10.处理关联后的数据（判断是否为维度）
+//        //TODO 10.处理关联后的数据（判断是否为维度）
         SingleOutputStreamOperator<Tuple2<JSONObject,TableProcessDim>> dimDS = connectDS.process(
                 new TableProcessFunction(mapStateDescriptor)
         );

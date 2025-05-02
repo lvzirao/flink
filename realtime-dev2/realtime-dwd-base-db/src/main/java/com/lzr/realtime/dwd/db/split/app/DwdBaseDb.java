@@ -41,7 +41,7 @@ public class DwdBaseDb extends BaseApp {
         SingleOutputStreamOperator<JSONObject> jsonObjDS = kafkaStrDS.process(
                 new ProcessFunction<String, JSONObject>() {
                     @Override
-                    public void processElement(String jsonStr, ProcessFunction<String, JSONObject>.Context ctx, Collector<JSONObject> out) throws Exception {
+                    public void processElement(String jsonStr, ProcessFunction<String, JSONObject>.Context ctx, Collector<JSONObject> out){
                         try {
                             JSONObject jsonObj = JSON.parseObject(jsonStr);
                             String type = jsonObj.getString("type");
@@ -56,9 +56,9 @@ public class DwdBaseDb extends BaseApp {
                 }
         );
 //        jsonObjDS.print();
-        // TODO 使用FlinkCDC读取配置表中的配置信息
-        // 创建MySqlSource对象
-        MySqlSource<String> mySqlSource = FlinkSourceUtil.getMysqlSource("gmall","table_process_dwd");
+//        // TODO 使用FlinkCDC读取配置表中的配置信息
+//        // 创建MySqlSource对象
+        MySqlSource<String> mySqlSource = FlinkSourceUtil.getMysqlSource("realtime_v2","table_process_dwd");
         // 读取数据 封装为流
         DataStreamSource<String> mysqlStrDS = env.fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "mysql_source");
         // 对流中的数据进行类型转化  jsonStr->实体类对象
@@ -83,8 +83,8 @@ public class DwdBaseDb extends BaseApp {
                     }
                 }
         );
-        //tpDS.print();
-        // TODO 对配置流进行广播 ---broadcast
+//        tpDS.print();
+//        // TODO 对配置流进行广播 ---broadcast
         MapStateDescriptor<String, TableProcessDwd> mapStateDescriptor
                 = new MapStateDescriptor<String, TableProcessDwd>("mapStateDescriptor",String.class, TableProcessDwd.class);
         BroadcastStream<TableProcessDwd> broadcastDS = tpDS.broadcast(mapStateDescriptor);
