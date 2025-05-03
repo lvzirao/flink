@@ -2,12 +2,14 @@ package com.lzr.realtime.dws.app;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.lzr.realtime.base.BaseApp;
 import com.lzr.realtime.bean.CartAddUuBean;
-import com.lzr.realtime.constant.Constant;
 import com.lzr.realtime.function.BeanToJsonStrMapFunction;
 import com.lzr.realtime.util.DateFormatUtil;
 import com.lzr.realtime.util.FlinkSinkUtil;
+import com.lzr.realtime.util.FlinkSourceUtil;
+import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
@@ -34,22 +36,23 @@ import org.apache.flink.util.Collector;
  * @Date 2025/4/22 10:03
  * @description:
  */
-public class DwsTradeCartAddWindow extends BaseApp {
+public class DwsTradeCartAddWindow{
     public static void main(String[] args) throws Exception {
-        new DwsTradeCartAddWindow().start(
-                10026,
-                4,
-                "dws_trade_cart_add_uu_window",
-                Constant.TOPIC_DWD_TRADE_CART_ADD
-        );
-    }
-    @Override
-    public void handle(StreamExecutionEnvironment env, DataStreamSource<String> kafkaStrDS) {
-        // TODO 1.对流中数据类型进行转换   jsonStr->jsonObj
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+        env.setParallelism(1);
+
+        env.enableCheckpointing(5000L, CheckpointingMode.EXACTLY_ONCE);
+
+        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3,3000L));
+
+        KafkaSource<String> kafkaSource = FlinkSourceUtil.getKafkaSource("dwd_trade_cart_add", "dws_trade_cart_add_uu_window");
+
+        DataStreamSource<String> kafkaStrDS
+                = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka_Source");
+
         SingleOutputStreamOperator<JSONObject> jsonObjDS = kafkaStrDS.map(JSON::parseObject);
-        //{"sku_num":"1","user_id":"2893","sku_id":"7","id":"10274","ts":1718111265}
-//        jsonObjDS.print();
-        // TODO 2.指定Watermark以及提取事件时间字段
+
         SingleOutputStreamOperator<JSONObject> withWatermarkDS = jsonObjDS.assignTimestampsAndWatermarks(
                 WatermarkStrategy
                         .<JSONObject>forMonotonousTimestamps()
@@ -57,23 +60,22 @@ public class DwsTradeCartAddWindow extends BaseApp {
                                 new SerializableTimestampAssigner<JSONObject>() {
                                     @Override
                                     public long extractTimestamp(JSONObject jsonObj, long recordTimestamp) {
-                                        return jsonObj.getLong("ts") * 1000;
+                                        return jsonObj.getLong("ts_ms") * 1000;
                                     }
                                 }
                         )
         );
-        // TODO 3.按照用户的id进行分组
-        KeyedStream<JSONObject, String> keyedDS
-                = withWatermarkDS.keyBy(jsonObj -> jsonObj.getString("user_id"));
-        // TODO 4.使用flink的状态编程  判断是否为加购独立用户   这里不需要封装实体类对象，直接将jsonObj传递到下游
+
+        KeyedStream<JSONObject, String> keyedDS = withWatermarkDS.keyBy(jsonObj -> jsonObj.getString("user_id"));
+
         SingleOutputStreamOperator<JSONObject> cartUUDS = keyedDS.process(
                 new KeyedProcessFunction<String, JSONObject, JSONObject>() {
                     private ValueState<String> lastCartDateState;
 
                     @Override
-                    public void open(Configuration parameters) throws Exception {
+                    public void open(Configuration parameters) {
                         ValueStateDescriptor<String> valueStateDescriptor
-                                = new ValueStateDescriptor<String>("lastCartDateState", String.class);
+                                = new ValueStateDescriptor<>("lastCartDateState", String.class);
                         valueStateDescriptor.enableTimeToLive(StateTtlConfig.newBuilder(Time.days(1)).build());
                         lastCartDateState = getRuntimeContext().getState(valueStateDescriptor);
                     }
@@ -83,19 +85,19 @@ public class DwsTradeCartAddWindow extends BaseApp {
                         //从状态中获取上次加购日期
                         String lastCartDate = lastCartDateState.value();
                         //获取当前这次加购日期
-                        Long ts = jsonObj.getLong("ts") * 1000;
+                        Long ts = jsonObj.getLong("ts_ms");
                         String curCartDate = DateFormatUtil.tsToDate(ts);
                         if (StringUtils.isEmpty(lastCartDate) || !lastCartDate.equals(curCartDate)) {
                             out.collect(jsonObj);
                             lastCartDateState.update(curCartDate);
                         }
-                        }
+                    }
                 }
         );
-        // TODO 5.开窗
-        AllWindowedStream<JSONObject, TimeWindow> windowDS
-                = cartUUDS.windowAll(TumblingEventTimeWindows.of(org.apache.flink.streaming.api.windowing.time.Time.seconds(10)));
-        // TODO 6.聚合
+
+        AllWindowedStream<JSONObject, TimeWindow> windowDS = cartUUDS
+                .windowAll(TumblingEventTimeWindows.of(org.apache.flink.streaming.api.windowing.time.Time.seconds(2)));
+
         SingleOutputStreamOperator<CartAddUuBean> aggregateDS = windowDS.aggregate(
                 new AggregateFunction<JSONObject, Long, Long>() {
                     @Override
@@ -120,11 +122,13 @@ public class DwsTradeCartAddWindow extends BaseApp {
                 },
                 new AllWindowFunction<Long, CartAddUuBean, TimeWindow>() {
                     @Override
-                    public void apply(TimeWindow window, Iterable<Long> values, Collector<CartAddUuBean> out) throws Exception {
+                    public void apply(TimeWindow window, Iterable<Long> values, Collector<CartAddUuBean> out) {
                         Long cartUUCt = values.iterator().next();
-                        String stt = DateFormatUtil.tsToDateTime(window.getStart());
-                        String edt = DateFormatUtil.tsToDateTime(window.getEnd());
-                        String curDate = DateFormatUtil.tsToDate(window.getStart());
+                        long startTs = window.getStart() / 1000;
+                        long endTs = window.getEnd() / 1000;
+                        String stt = DateFormatUtil.tsToDateTime(startTs);
+                        String edt = DateFormatUtil.tsToDateTime(endTs);
+                        String curDate = DateFormatUtil.tsToDate(startTs);
                         out.collect(new CartAddUuBean(
                                 stt,
                                 edt,
@@ -134,10 +138,14 @@ public class DwsTradeCartAddWindow extends BaseApp {
                     }
                 }
         );
-        // TODO 7.将聚合的结果写道Doris
-        aggregateDS.print();
-        aggregateDS
-                .map(new BeanToJsonStrMapFunction<>())
-                .sinkTo(FlinkSinkUtil.getDorisSink("dws_trade_cart_add_uu_window"));
+
+        SingleOutputStreamOperator<String> operator = aggregateDS
+                .map(new BeanToJsonStrMapFunction<>());
+
+        operator.print();
+
+        operator.sinkTo(FlinkSinkUtil.getDorisSink("dws_trade_cart_add_uu_window"));
+
+        env.execute("DwsTradeCartAddUuWindow");
     }
 }

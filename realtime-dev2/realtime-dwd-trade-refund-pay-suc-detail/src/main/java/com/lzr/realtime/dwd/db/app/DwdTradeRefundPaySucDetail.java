@@ -3,6 +3,8 @@ package com.lzr.realtime.dwd.db.app;
 import com.lzr.realtime.base.BaseSQLApp;
 import com.lzr.realtime.constant.Constant;
 import com.lzr.realtime.util.SQLUtil;
+import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
@@ -14,106 +16,124 @@ import java.time.Duration;
  * @Date 2025/4/16 14:14
  * @description:
  */
-public class DwdTradeRefundPaySucDetail extends BaseSQLApp {
-    public static void main(String[] args) {
-        new DwdTradeRefundPaySucDetail().start(
-                10018,
-                4,
-                Constant.TOPIC_DWD_TRADE_REFUND_PAYMENT_SUCCESS
-        );
-    }
+public class DwdTradeRefundPaySucDetail{
+    public static void main(String[] args) throws Exception {
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-    @Override
-    public void handle(StreamTableEnvironment tEnv) {
-        tEnv.getConfig().setIdleStateRetention(Duration.ofSeconds(5));
-        // 1. 读取 topic_db
-        readOdsDb(tEnv, Constant.TOPIC_DWD_TRADE_REFUND_PAYMENT_SUCCESS);
-        // 2. 读取 字典表
-        readBaseDic(tEnv);
+        env.setParallelism(4);
+
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+
+        env.enableCheckpointing(5000L, CheckpointingMode.EXACTLY_ONCE);
+
+        tableEnv.getConfig().setIdleStateRetention(Duration.ofSeconds(30 * 60 + 5));
+
+        tableEnv.executeSql("CREATE TABLE topic_db (\n" +
+                "  after MAP<string, string>, \n" +
+                "  source MAP<string, string>, \n" +
+                "  `op` string, \n" +
+                "  ts_ms bigint " +
+                ")" + SQLUtil.getKafkaDDL(Constant.TOPIC_DB, Constant.TOPIC_DWD_INTERACTION_COMMENT_INFO));
+//        tableEnv.executeSql("select * from topic_db").print();
+
+
+        tableEnv.executeSql("CREATE TABLE base_dic (\n" +
+                " dic_code string,\n" +
+                " info ROW<dic_name string>,\n" +
+                " PRIMARY KEY (dic_code) NOT ENFORCED\n" +
+                ") " + SQLUtil.getHbaseDDL("dim_base_dic")
+        );
+//        tableEnv.executeSql("select * from base_dic").print();
 
         // 3. 过滤退款成功表数据
-        Table refundPayment = tEnv.sqlQuery(
+        Table refundPayment = tableEnv.sqlQuery(
                 "select " +
-                        "data['id'] id," +
-                        "data['order_id'] order_id," +
-                        "data['sku_id'] sku_id," +
-                        "data['payment_type'] payment_type," +
-                        "data['callback_time'] callback_time," +
-                        "data['total_amount'] total_amount," +
-                        "pt, " +
-                        "ts " +
-                        "from topic_db " +
-                        "where `table`='refund_payment' " +
-                        "and `type`='update' " +
-                        "and `old`['refund_status'] is not null " +
-                        "and `data`['refund_status']='1602'");
-        tEnv.createTemporaryView("refund_payment", refundPayment);
+                        " after['id'] id," +
+                        " after['order_id'] order_id," +
+                        " after['sku_id'] sku_id," +
+                        " after['payment_type'] payment_type," +
+                        " after['callback_time'] callback_time," +
+                        " after['total_amount'] total_amount," +
+                        " ts_ms " +
+                        " from topic_db " +
+                        " where source['table']='refund_payment' " +
+                        " and `op`='r' " +
+                        " and `after`['refund_status'] is not null " +
+                        " and `after`['refund_status']='1602'");
+        tableEnv.createTemporaryView("refund_payment", refundPayment);
+//        refundPayment.execute().print();
+
         // 4. 过滤退单表中的退单成功的数据
-        Table orderRefundInfo = tEnv.sqlQuery(
+        Table orderRefundInfo = tableEnv.sqlQuery(
                 "select " +
-                        "data['order_id'] order_id," +
-                        "data['sku_id'] sku_id," +
-                        "data['refund_num'] refund_num " +
-                        "from topic_db " +
-                        "where `table`='order_refund_info' " +
-                        "and `type`='update' " +
-                        "and `old`['refund_status'] is not null " +
-                        "and `data`['refund_status']='0705'");
-        tEnv.createTemporaryView("order_refund_info", orderRefundInfo);
+                        " after['order_id'] order_id," +
+                        " after['sku_id'] sku_id," +
+                        " after['refund_num'] refund_num " +
+                        " from topic_db " +
+                        " where source['table']='order_refund_info' " +
+                        " and `op`='r' " +
+                        " and `after`['refund_status'] is not null " +
+                        " and `after`['refund_status']='0705'");
+        tableEnv.createTemporaryView("order_refund_info", orderRefundInfo);
+//        orderRefundInfo.execute().print();
 
         // 5. 过滤订单表中的退款成功的数据
-        Table orderInfo = tEnv.sqlQuery(
+        Table orderInfo = tableEnv.sqlQuery(
                 "select " +
-                        "data['id'] id," +
-                        "data['user_id'] user_id," +
-                        "data['province_id'] province_id " +
+                        "after['id'] id," +
+                        "after['user_id'] user_id," +
+                        "after['province_id'] province_id " +
                         "from topic_db " +
-                        "where `table`='order_info' " +
-                        "and `type`='update' " +
-                        "and `old`['order_status'] is not null " +
-                        "and `data`['order_status']='1006'");
-        tEnv.createTemporaryView("order_info", orderInfo);
+                        "where source['table']='order_info' " +
+                        "and `op`='r' " +
+                        "and `after`['order_status'] is not null " +
+                        "and `after`['order_status']='1006'");
+        tableEnv.createTemporaryView("order_info", orderInfo);
+//        orderInfo.execute().print();
+
 
         // 6. 4 张表的 join
-        Table result = tEnv.sqlQuery(
+        Table result = tableEnv.sqlQuery(
                 "select " +
-                        "rp.id," +
-                        "oi.user_id," +
-                        "rp.order_id," +
-                        "rp.sku_id," +
-                        "oi.province_id," +
-                        "rp.payment_type," +
-                        "dic.info.dic_name payment_type_name," +
-                        "date_format(rp.callback_time,'yyyy-MM-dd') date_id," +
-                        "rp.callback_time," +
-                        "ori.refund_num," +
-                        "rp.total_amount," +
-                        "rp.ts " +
-                        "from refund_payment rp " +
-                        "join order_refund_info ori " +
-                        "on rp.order_id=ori.order_id and rp.sku_id=ori.sku_id " +
-                        "join order_info oi " +
-                        "on rp.order_id=oi.id " +
-                        "join base_dic for system_time as of rp.pt as dic " +
-                        "on rp.payment_type=dic.dic_code ");
+                        " rp.id," +
+                        " oi.user_id," +
+                        " rp.order_id," +
+                        " rp.sku_id," +
+                        " oi.province_id," +
+                        " rp.payment_type," +
+                        " date_format(TO_TIMESTAMP(FROM_UNIXTIME(CAST(rp.callback_time AS BIGINT) / 1000)), 'yyyy-MM-dd') date_id, " +
+                        " rp.callback_time," +
+                        " ori.refund_num," +
+                        " rp.total_amount," +
+                        " rp.ts_ms " +
+                        " from refund_payment rp " +
+                        " join order_refund_info ori " +
+                        " on rp.order_id=ori.order_id and rp.sku_id=ori.sku_id " +
+                        " join order_info oi " +
+                        " on rp.order_id=oi.id ");
+//        result.execute().print();
 
         // 7.写出到 kafka
-        tEnv.executeSql("create table "+Constant.TOPIC_DWD_TRADE_REFUND_PAYMENT_SUCCESS+"(" +
-                "id string," +
-                "user_id string," +
-                "order_id string," +
-                "sku_id string," +
-                "province_id string," +
-                "payment_type_code string," +
-                "payment_type_name string," +
-                "date_id string," +
-                "callback_time string," +
-                "refund_num string," +
-                "refund_amount string," +
-                "ts bigint ," +
-                "PRIMARY KEY (id) NOT ENFORCED " +
+        tableEnv.executeSql("create table "+Constant.TOPIC_DWD_TRADE_REFUND_PAYMENT_SUCCESS+"(" +
+                " id string," +
+                " user_id string," +
+                " order_id string," +
+                " sku_id string," +
+                " province_id string," +
+
+                " payment_type_code string," +
+                " date_id string," +
+                " callback_time string," +
+                " refund_num string," +
+                " refund_amount string," +
+                " ts_ms bigint ," +
+                " PRIMARY KEY (id) NOT ENFORCED " +
                 ")" + SQLUtil.getUpsertKafkaDDL(Constant.TOPIC_DWD_TRADE_REFUND_PAYMENT_SUCCESS));
         result.executeInsert(Constant.TOPIC_DWD_TRADE_REFUND_PAYMENT_SUCCESS);
 
+        env.execute("DwdTradeRefundPaySucDetail");
+
+
     }
+
 }

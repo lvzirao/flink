@@ -5,7 +5,9 @@ import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestOptions;
+import org.apache.flink.runtime.state.hashmap.HashMapStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
@@ -30,7 +32,6 @@ public abstract class BaseSQLApp {
         //TODO 2.检查点相关的设置
         env.enableCheckpointing(5000L, CheckpointingMode.EXACTLY_ONCE);
         env.setRestartStrategy(RestartStrategies.failureRateRestart(3, Time.days(30),Time.seconds(3)));
-        /*
         //2.1 开启检查点
         //2.2 设置检查点超时时间
         env.getCheckpointConfig().setCheckpointTimeout(6000L);
@@ -44,8 +45,8 @@ public abstract class BaseSQLApp {
         env.setStateBackend(new HashMapStateBackend());
         env.getCheckpointConfig().setCheckpointStorage("hdfs://hadoop102:8020/ck/" + ck);
         //2.7 设置操作hadoop的用户
-        System.setProperty("HADOOP_USER_NAME","atguigu");
-        */
+        System.setProperty("HADOOP_USER_NAME","root");
+
         //TODO 3.业务处理逻辑
         handle(tableEnv);
     }
