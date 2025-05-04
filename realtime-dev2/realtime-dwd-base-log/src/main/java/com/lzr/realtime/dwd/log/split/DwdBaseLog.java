@@ -29,17 +29,6 @@ import java.util.Map;
  * @Author lv.zirao
  * @Date 2025/4/14 10:24
  * @description:
- * 日志分流
- * 需要启动的进程
- *  kafkaSource:从kafka主题中读取数据
- *              通过手动维护偏移量，保证消费的精准一次
- *  kafkaSink：向kafka主题中写入数据，也可以保证写入的精准一次,需要如下操作
- *           开启检查点
- *           .setDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
- *           .setTransactionalIdPrefix("dwd_base_log_")
- *           .setProperty(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG,15*60*100+"")
- *           在消费端，需要设置消费的隔离级别为读已提交
- *
  */
 public class DwdBaseLog extends BaseApp {
     private final String START = "start";

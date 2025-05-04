@@ -63,25 +63,5 @@ public class DwdInteractionCommentinfo extends BaseSQLApp {
                 ")"+SQLUtil.getUpsertKafkaDDL(Constant.TOPIC_DWD_INTERACTION_COMMENT_INFO));
         // 写入
         joinedTable.executeInsert(Constant.TOPIC_DWD_INTERACTION_COMMENT_INFO);
-//    private static void readOdsDb(StreamTableEnvironment tableEnv){
-//        tableEnv.executeSql("create table topic_db (\n" +
-//                " `database` string,\n" +
-//                " `table` string,\n" +
-//                " `type` string,\n" +
-//                " `ts` bigint,\n" +
-//                " `data` MAP<string,string>,\n" +
-//                " `old` MAP<string,string>,\n" +
-//                " `proc_time` as proctime()\n" +
-//                ")"+ SQLUtil.getKafkaDDL(Constant.TOPIC_DB,Constant.TOPIC_DWD_INTERACTION_COMMENT_INFO));
-//        tableEnv.executeSql("select * from topic_db").print();
-//    }
-    // 从hbase的字典表中读取数据，创建动态表
-//    public void readBaseDic(StreamTableEnvironment tableEnv){
-//        tableEnv.executeSql("CREATE TABLE base_dic (\n" +
-//                " dic_code string,\n" +
-//                " info RoW<dic_name string>,\n" +
-//                " PRIMARY KEY (dic_code) NOT ENFORCED\n" +
-//                ")"+SQLUtil.getHbaseDDL(":dim_base_dic"));
-//        tableEnv.executeSql("select * from base_dic").print();
     }
 }

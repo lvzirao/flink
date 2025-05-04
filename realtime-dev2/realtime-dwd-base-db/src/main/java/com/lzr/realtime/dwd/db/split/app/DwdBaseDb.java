@@ -84,7 +84,7 @@ public class DwdBaseDb extends BaseApp {
                 }
         );
 //        tpDS.print();
-//        // TODO 对配置流进行广播 ---broadcast
+//        // TODO 对配置流进行广播
         MapStateDescriptor<String, TableProcessDwd> mapStateDescriptor
                 = new MapStateDescriptor<String, TableProcessDwd>("mapStateDescriptor",String.class, TableProcessDwd.class);
         BroadcastStream<TableProcessDwd> broadcastDS = tpDS.broadcast(mapStateDescriptor);

@@ -16,9 +16,6 @@ import java.time.Duration;
  * @Author lv.zirao
  * @Date 2025/4/16 11:29
  * @description:
- * 下单事实表
- * 需要启动的进程
- *   zk、kafka、maxwell、dwdTradeOrderDetail
  */
 public class DwdTradeOrderDetail {
     @SneakyThrows

@@ -14,9 +14,6 @@ import java.time.Duration;
  * @Author lv.zirao
  * @Date 2025/4/16 11:53
  * @description:
- * 取消订单事实表
- * 需要启动的进程
- *   zk、kafka、maxwell、DwdTradeOrderCancelDetail
  */
 public class DwdTradeOrderCancelDetail{
     public static void main(String[] args) throws Exception {

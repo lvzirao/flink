@@ -134,7 +134,7 @@ public class DimApp extends BaseApp {
                             // 从配置表中读取了一条数据或者象配置表中添加了一条数据  在hbase中执行建表
                             HBaseUtil.createHBaseTable(hbaseConn,Constant.HBASE_NAMESPACE,sinkTable,sinkFamilies);
                         }else{
-                            // 对配置表中的配置信息进行了修改 先从hbase将对应的表删除掉，在创建表
+                            // 对配置表中的配置信息进行了修改 先从hbase将对应的表删除
                             HBaseUtil.dropHBaseTable(hbaseConn,Constant.HBASE_NAMESPACE,sinkTable);
                             HBaseUtil.createHBaseTable(hbaseConn,Constant.HBASE_NAMESPACE,sinkTable,sinkFamilies);
                         }

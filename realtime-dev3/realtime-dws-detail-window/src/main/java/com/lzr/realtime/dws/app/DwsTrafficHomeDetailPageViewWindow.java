@@ -51,7 +51,7 @@ public class DwsTrafficHomeDetailPageViewWindow extends BaseApp {
 
     @Override
     public void handle(StreamExecutionEnvironment env, DataStreamSource<String> kafkaStrDS) {
-        // TODO 1.对流中数据类型进行转换   jsonStr->jsonObj
+        // TODO 1.对流中数据类型进行转换
         SingleOutputStreamOperator<JSONObject> jsonObjDS = kafkaStrDS.map(JSON::parseObject);
         // TODO 2.过滤首页以及详情页
         SingleOutputStreamOperator<JSONObject> filterDS = jsonObjDS.filter(

@@ -1,6 +1,5 @@
 package com.lzr.realtime.dwd.db.app;
 
-import com.lzr.realtime.base.BaseSQLApp;
 import com.lzr.realtime.constant.Constant;
 import com.lzr.realtime.util.SQLUtil;
 import org.apache.flink.streaming.api.CheckpointingMode;
