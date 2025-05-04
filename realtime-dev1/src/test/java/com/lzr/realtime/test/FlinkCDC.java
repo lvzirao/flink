@@ -42,6 +42,6 @@ public class FlinkCDC {
         env.fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
                         .sinkTo(sink);
 
-        env.execute("Print MySQL Snapshot + Binlog");
+        env.execute("Print MySQL Snapshot + bin");
     }
 }

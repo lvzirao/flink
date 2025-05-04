@@ -259,7 +259,7 @@ public class DwdBaseLog extends BaseApp {
         //jsonObjDS.print("标准的json:");
         SideOutputDataStream<String> dirtyDS = jsonObjDS.getSideOutput(dirtyTag);
         dirtyDS.print("脏数据:");
-        //将侧输出流中的脏数据写到kafka主题中
+        //将侧输出流中的脏数据写到kafka主题域中
         KafkaSink<String> kafkaSink = FlinkSinkUtil.getKafkaSink("dirty_data");
         dirtyDS.sinkTo(kafkaSink);
         return jsonObjDS;

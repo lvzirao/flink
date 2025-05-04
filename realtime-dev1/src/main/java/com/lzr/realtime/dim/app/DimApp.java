@@ -143,7 +143,7 @@ public class DimApp extends BaseApp {
                 }
         ).setParallelism(1);
 //        tpDS.print();
-//        //TODO 8.将配置流中信息进行广播
+//        //TODO 8.将配置流中信息进行广播流处理
         MapStateDescriptor<String, TableProcessDim> mapStateDescriptor
                 = new MapStateDescriptor("mapStateDescriptor",String.class,TableProcessDim.class);
         BroadcastStream<TableProcessDim> broadcastDS = tpDS.broadcast(mapStateDescriptor);
