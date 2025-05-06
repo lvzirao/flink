@@ -2,11 +2,12 @@ package com.lzr.conf.bean;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
 /**
- * @Package com.lzr.conf.bean.TradeProvinceOrderAmount
- * @Author lv.zirao
- * @Date 2025/4/23 20:33
- * @description:
+ * @Package com.lzy.retail.com.lzy.stream.realtime.v1.realtime.bean.TradeProvinceOrderAmount
+ * @Author zheyuan.liu
+ * @Date 2025/4/8 11:19
+ * @description: TradeProvinceOrderAmount
  */
 
 @Data

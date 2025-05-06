@@ -11,15 +11,6 @@
     <modules>
         <module>realtime-dev1</module>
         <module>realtime-dev</module>
-        <module>realtime-dev2</module>
-        <module>realtime-dev3</module>
-        <module>realtime-dev3/realtime-dws-keyword-window</module>
-        <module>realtime-dev3/realtime-dws-page-view-window</module>
-        <module>realtime-dev3/realtime-dws-detail-window</module>
-        <module>realtime-dev3/realtime-dws-login-window</module>
-        <module>realtime-dev3/realtime-dws-add-window</module>
-        <module>realtime-dev3/realtime-dws-order-window</module>
-        <module>realtime-dev3/realtime-dws-province-window</module>
     </modules>
 
     <properties>

@@ -9,7 +9,9 @@
     </option>
     <option name="ignoredFiles">
       <set>
+        <option value="$PROJECT_DIR$/realtime-dev2/pom.xml" />
         <option value="$PROJECT_DIR$/realtime-dev2/realtime-dws-order-window/pom.xml" />
+        <option value="$PROJECT_DIR$/realtime-dev3/pom.xml" />
       </set>
     </option>
   </component>
