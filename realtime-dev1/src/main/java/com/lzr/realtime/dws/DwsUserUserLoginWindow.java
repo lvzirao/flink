@@ -161,7 +161,7 @@ public class DwsUserUserLoginWindow {
 
         jsonMap.print();
 
-        jsonMap.sinkTo(FlinkSinkUtil.getDorisSink("dws_user_user_login_window"));
+//        jsonMap.sinkTo(FlinkSinkUtil.getDorisSink("dws_user_user_login_window"));
 
         env.execute();
     }
