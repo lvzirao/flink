@@ -2,6 +2,7 @@ package com.lzr.conf.utils;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -16,6 +17,7 @@ public class DateFormatUtil {
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter dtfForPartition = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter dtfFull = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public final static String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 
     public static Integer now(){
         String yyyyMMdd = DateFormatUtils.format(new Date(), "yyyyMMdd");
@@ -69,4 +71,12 @@ public class DateFormatUtil {
         return dateTimeToTs(date + " 00:00:00");
     }
 
+    public static String format(Date date) {
+        return format(date, YYYY_MM_DD_HH_MM_SS);
+    }
+
+    public static String format(Date date, String format) {
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
+        return formatter.format(date);
+    }
 }

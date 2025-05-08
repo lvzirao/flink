@@ -1,4 +1,4 @@
-package com.lzr.utils;
+package com.lzr.conf.utils;
 
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * @Package com.lzr.utils.ConfigUtils
+ * @Package com.lzr.conf.utils.ConfigUtils
  * @Author lv.zirao
- * @Date 2025/5/7 20:19
+ * @Date 2025/5/8 19:53
  * @description:
  */
 public class ConfigUtils {
