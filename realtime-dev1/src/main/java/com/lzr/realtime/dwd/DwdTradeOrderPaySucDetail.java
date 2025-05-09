@@ -14,6 +14,7 @@ import java.time.Duration;
  * @Author lzr
  * @Date 2025/4/14 11:04
  * @description: DwdTradeOrderPaySucDetail
+ * 交易订单支付成功详情表，记录订单支付成功的明细情况。
  */
 
 public class DwdTradeOrderPaySucDetail {
@@ -46,6 +47,7 @@ public class DwdTradeOrderPaySucDetail {
 //        tableEnv.executeSql("select * from base_dic").print();
 
         //TODO 从下单事实表读取数据 创建动态表
+//        使用 SQLUtil.getKafkaDDL 方法获取 Kafka 相关的 DDL 语句，从 Constant.TOPIC_DWD_TRADE_ORDER_DETAIL 主题读取数据
         tableEnv.executeSql(
                 "create table dwd_trade_order_detail(" +
                         " id string," +
@@ -69,6 +71,7 @@ public class DwdTradeOrderPaySucDetail {
         
         
         //TODO 过滤出支付成功数据
+//        数据过滤：从 topic_db 表中筛选出数据源表名为 payment_info、操作类型为 r（通常表示读取或初始快照）、支付状态不为空且支付状态为 1602（表示支付成功）的数据。
         Table paymentInfo = tableEnv.sqlQuery("select " +
                 "after['user_id'] user_id," +
                 "after['order_id'] order_id," +
@@ -80,10 +83,12 @@ public class DwdTradeOrderPaySucDetail {
                 "and `op`='r' " +
                 "and `after`['payment_status'] is not null " +
                 "and `after`['payment_status'] = '1602' ");
+//        临时视图
         tableEnv.createTemporaryView("payment_info", paymentInfo);
 //        paymentInfo.execute().print();
 
         //TODO 和字典进行关联---lookup join 和下单数据进行关联---IntervalJoin
+//        选择需要的字段，包括订单详情 ID、订单 ID、用户 ID、商品 ID、支付类型、回调时间等，并将结果存储在 result 表中
         Table result = tableEnv.sqlQuery(
                 "select " +
                         "od.id order_detail_id," +

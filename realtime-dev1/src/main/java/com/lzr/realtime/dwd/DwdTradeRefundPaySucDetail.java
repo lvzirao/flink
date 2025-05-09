@@ -13,7 +13,7 @@ import java.time.Duration;
  * @Package com.lzr.stream.realtime.com.lzy.stream.realtime.com.lzy.stream.realtime.v2.app.bwd.DwdTradeRefundPaySucDetail
  * @Author lzr
  * @Date 2025/4/14 11:46
- * @description: DwdTradeRefundPaySucDetail
+ * @description: DwdTradeRefundPaySucDetail 交易退款支付成功详情表，记录退款支付成功的详细信息
  */
 
 public class DwdTradeRefundPaySucDetail {

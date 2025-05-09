@@ -35,6 +35,9 @@ import java.util.concurrent.TimeUnit;
  * @Author lv.zirao
  * @Date 2025/4/18 13:52
  * @description: DwsTradeSkuOrderWindow
+ * 业务含义：商品SKU订单窗口表
+ * 分析维度：按商品SKU统计订单数据
+ * 典型指标：SKU销量、销售额、订单数
  */
 
 public class DwsTradeSkuOrderWindow {
@@ -65,7 +68,7 @@ public class DwsTradeSkuOrderWindow {
         );
 
 //        jsonObjDS.print();
-
+//        3. 去重处理
         KeyedStream<JSONObject, String> orderDetailIdKeyedDS = jsonObjDS.keyBy(jsonObj -> jsonObj.getString("id"));
 
         SingleOutputStreamOperator<JSONObject> distinctDS = orderDetailIdKeyedDS.process(

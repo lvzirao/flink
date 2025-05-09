@@ -35,6 +35,9 @@ import org.apache.flink.util.Collector;
  * @Author lv.zirao
  * @Date 2025/4/18 15:03
  * @description: DwsTrafficHomeDetailPageViewWindow
+ * 业务含义：首页与详情页流量窗口表
+ * 分析维度：首页和商品详情页的浏览行为
+ * 典型指标：首页跳失率、详情页转化率
  */
 
 public class DwsTrafficHomeDetailPageViewWindow {

@@ -13,7 +13,7 @@ import java.time.Duration;
  * @Package com.lzr.stream.realtime.com.lzy.stream.realtime.com.lzy.stream.realtime.v2.app.bwd.DwdTradeOrderRefund
  * @Author lzr
  * @Date 2025/4/14 11:26
- * @description: DwdTradeOrderRefund
+ * @description: DwdTradeOrderRefund 交易订单退款表，存放订单退款相关的数据
  */
 
 public class DwdTradeOrderRefund {

@@ -12,6 +12,9 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
  * @Author lv.zirao
  * @Date 2025/4/18 18:53
  * @description:
+ * 业务含义：流量来源关键词页面浏览窗口表
+ * 分析维度：按来源渠道和搜索关键词聚合页面浏览量
+ * 典型指标：各渠道PV、关键词搜索热度、转化率
  */
 
 public class DwsTrafficSourceKeywordPageViewWindow {

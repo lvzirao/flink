@@ -11,6 +11,7 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
  * @Author lzr
  * @Date 2025/4/11 20:49
  * @description: DwdTradeCartAdd
+ * 交易购物车添加表，可能记录向购物车添加商品等操作信息
  */
 
 public class DwdTradeCartAdd {
@@ -31,7 +32,7 @@ public class DwdTradeCartAdd {
                 ")" + SQLUtil.getKafkaDDL(Constant.TOPIC_DB, Constant.TOPIC_DWD_INTERACTION_COMMENT_INFO));
 //        tableEnv.executeSql("select * from topic_db").print();
 
-
+//        创建 HBase 维表
         tableEnv.executeSql("CREATE TABLE base_dic (\n" +
                 " dic_code string,\n" +
                 " info ROW<dic_name string>,\n" +
@@ -39,7 +40,7 @@ public class DwdTradeCartAdd {
                 ") " + SQLUtil.getHBaseDDL("dim_base_dic")
         );
 //        tableEnv.executeSql("select * from base_dic").print();
-
+//        4. 定义购物车数据查询逻辑提取字段
         Table cartInfo = tableEnv.sqlQuery("select \n" +
                 "   `after`['id'] id,\n" +
                 "   `after`['user_id'] user_id,\n" +
@@ -52,7 +53,7 @@ public class DwdTradeCartAdd {
                 "   ( op='r' and after['sku_num'] is not null and (CAST(after['sku_num'] AS INT) > CAST(after['sku_num'] AS INT))))"
         );
 //        cartInfo.execute().print();
-
+//        创建 Kafka 结果表
         tableEnv.executeSql(" create table "+Constant.TOPIC_DWD_TRADE_CART_ADD+"(\n" +
                 "    id string,\n" +
                 "    user_id string,\n" +

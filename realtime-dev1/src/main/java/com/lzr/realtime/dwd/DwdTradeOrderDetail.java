@@ -14,6 +14,7 @@ import java.time.Duration;
  * @Author lzr
  * @Date 2025/4/13 19:41
  * @description: DwdTradeOrderDetail
+ * 交易订单详情表，保存订单的详细信息
  */
 
 public class DwdTradeOrderDetail {
@@ -28,7 +29,7 @@ public class DwdTradeOrderDetail {
         env.enableCheckpointing(5000L, CheckpointingMode.EXACTLY_ONCE);
 
         tableEnv.getConfig().setIdleStateRetention(Duration.ofSeconds(30 * 60 + 5));
-
+// 从Kafka读取业务数据
         tableEnv.executeSql("CREATE TABLE topic_db (\n" +
                 "  after MAP<string, string>, \n" +
                 "  source MAP<string, string>, \n" +
@@ -37,7 +38,7 @@ public class DwdTradeOrderDetail {
                 ")" + SQLUtil.getKafkaDDL(Constant.TOPIC_DB, Constant.TOPIC_DWD_INTERACTION_COMMENT_INFO));
 //        tableEnv.executeSql("select * from topic_db").print();
 
-
+// 从HBase读取字典表
         tableEnv.executeSql("CREATE TABLE base_dic (\n" +
                 " dic_code string,\n" +
                 " info ROW<dic_name string>,\n" +
@@ -66,6 +67,7 @@ public class DwdTradeOrderDetail {
                         "  from topic_db " +
                         "  where source['table'] = 'order_detail' " +
                         "  and `op`='r' ");
+        // 创建临时视图
         tableEnv.createTemporaryView("order_detail", orderDetail);
 //        orderDetail.execute().print();
 
@@ -160,6 +162,5 @@ public class DwdTradeOrderDetail {
         result.executeInsert(Constant.TOPIC_DWD_TRADE_ORDER_DETAIL);
 
         env.disableOperatorChaining();
-//        env.execute("DwdOrderFactSheet");
     }
 }

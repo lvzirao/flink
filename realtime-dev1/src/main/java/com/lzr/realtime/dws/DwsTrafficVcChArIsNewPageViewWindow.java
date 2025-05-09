@@ -37,6 +37,9 @@ import org.apache.flink.util.Collector;
  * @Author lv.zirao
  * @Date 2025/4/21 9:37
  * @description: DwsTrafficVcChArIsNewPageViewWindow
+ * 业务含义：商品SKU订单窗口表
+ * 分析维度：按商品SKU统计订单数据
+ * 典型指标：SKU销量、销售额、订单数
  */
 
 public class DwsTrafficVcChArIsNewPageViewWindow {

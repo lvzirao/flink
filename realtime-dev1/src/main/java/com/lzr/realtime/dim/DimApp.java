@@ -45,7 +45,7 @@ public class DimApp {
         DataStreamSource<String> kafkaStrDS = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "kafka_source");
 
 //        kafkaStrDS.print();
-
+//        过滤出数据库为 realtime_v1 且操作类型为增删改查（c/u/d/r）的数据。
         SingleOutputStreamOperator<JSONObject> jsonObjDS = kafkaStrDS.process(
                 new ProcessFunction<String, JSONObject>() {
                     @Override
@@ -72,12 +72,12 @@ public class DimApp {
 
 //        jsonObjDS.print();
 
+//        使用 Flink CDC 从 MySQL 的 realtime_v2 库的 table_process_dim 表读取配置信息。
         MySqlSource<String> mySqlSource = FlinkSourceUtil.getMySqlSource("realtime_v2", "table_process_dim");
-
         DataStreamSource<String> mysqlStrDS = env
                 .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "mysql_source")
                 .setParallelism(1);
-
+//        配置数据并处理 HBase 表结构
         SingleOutputStreamOperator<TableProcessDim> tpDS = mysqlStrDS.map(
                 new MapFunction<String, TableProcessDim>() {
                     @Override
@@ -98,6 +98,8 @@ public class DimApp {
 
 //        tpDS.print();
 
+//        对 tpDS 流中的每个 TableProcessDim 对象进行处理，根据对象中的操作类型（op）执行对应的 HBase 表操作类型op类型执行对应的 HBase 表操作
+//        最终返回原始的 TableProcessDim 对象
         tpDS.map(
                 new RichMapFunction<TableProcessDim, TableProcessDim>() {
 
@@ -132,13 +134,13 @@ public class DimApp {
         ).setParallelism(1);
 
 //        tpDS.print();
-
+//        广播配置流并连接业务流
         MapStateDescriptor<String, TableProcessDim> mapStateDescriptor =
                 new MapStateDescriptor<>("mapStateDescriptor",String.class, TableProcessDim.class);
         BroadcastStream<TableProcessDim> broadcastDS = tpDS.broadcast(mapStateDescriptor);
 
         BroadcastConnectedStream<JSONObject, TableProcessDim> connectDS = jsonObjDS.connect(broadcastDS);
-
+//        处理连接流并写入 HBase
         SingleOutputStreamOperator<Tuple2<JSONObject,TableProcessDim>> dimDS = connectDS.process(new TableProcessFunction(mapStateDescriptor));
 
         dimDS.print();

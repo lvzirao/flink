@@ -184,8 +184,6 @@ public class DbusDBCommentFactData2Kafka {
                 .sinkTo(
                         KafkaUtils.buildKafkaSink(kafka_botstrap_servers, kafka_db_fact_comment_topic)
                 ).uid("kafka_db_fact_comment_sink").name("kafka_db_fact_comment_sink");
-
-
         env.execute();
     }
 }

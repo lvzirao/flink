@@ -14,6 +14,7 @@ import java.time.Duration;
  * @Author lzr
  * @Date 2025/4/13 18:53
  * @description: DwdTradeOrderCancelDetail
+ * 交易订单取消详情表，存储取消操作的详细数据
  */
 
 public class DwdTradeOrderCancelDetail {

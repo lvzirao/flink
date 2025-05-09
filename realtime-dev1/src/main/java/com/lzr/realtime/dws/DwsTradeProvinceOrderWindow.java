@@ -39,6 +39,9 @@ import java.util.concurrent.TimeUnit;
  * @Author lv.zirao
  * @Date 2025/4/21 14:56
  * @description: DwsTradeProvinceOrderWindow
+ * 业务含义：省份订单窗口表
+ * 分析维度：按省份聚合订单数据
+ * 典型指标：各省份订单数、销售额、热门商品
  */
 
 public class DwsTradeProvinceOrderWindow {

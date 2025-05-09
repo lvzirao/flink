@@ -36,27 +36,31 @@ import org.apache.flink.util.Collector;
  * @Author lv.zirao
  * @Date 2025/4/21 9:56
  * @description: DwsUserUserLoginWindow
+ * 业务含义：用户登录窗口聚合表
+ * 分析维度：统计用户登录行为（如每日/每小时活跃用户数）
+ * 典型指标：UV（独立用户数）、登录次数、登录设备分布
  */
 
 public class DwsUserUserLoginWindow {
     public static void main(String[] args) throws Exception {
+//        环境初始化与配置
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
+//        并行度 全局设置为 1，简化调试。
         env.setParallelism(1);
-
+//        检查点机制
         env.enableCheckpointing(5000L, CheckpointingMode.EXACTLY_ONCE);
-
+//        重启策略
         env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3,3000L));
-
+//        数据摄入与预处理
+//        从 Kafka 的dwd_traffic_page主题消费页面浏览数据。
+//        将 JSON 字符串解析为JSONObject。
         KafkaSource<String> kafkaSource = FlinkSourceUtil.getKafkaSource("dwd_traffic_page", "dws_user_user_login_window");
-
         DataStreamSource<String> kafkaStrDS
                 = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka_Source");
-
         SingleOutputStreamOperator<JSONObject> jsonObjDS = kafkaStrDS.map(JSON::parseObject);
 
 //        jsonObjDS.print();
-
+//        过滤登录事件用户 ID 非空
         SingleOutputStreamOperator<JSONObject> filterDS = jsonObjDS.filter(
                 new FilterFunction<JSONObject>() {
                     @Override
@@ -70,7 +74,9 @@ public class DwsUserUserLoginWindow {
         );
 
 //        filterDS.print();
-
+//        水印与时间戳分配
+//        水印策略：假设事件时间单调递增，使用forMonotonousTimestamps生成水印
+//        时间戳提取：从 JSON 对象中提取ts字段作为事件时间。
         SingleOutputStreamOperator<JSONObject> withWatermarkDS = filterDS.assignTimestampsAndWatermarks(
                 WatermarkStrategy
                         .<JSONObject>forMonotonousTimestamps()
@@ -84,9 +90,11 @@ public class DwsUserUserLoginWindow {
                         )
         );
 
+//        状态管理与用户行为分析
         KeyedStream<JSONObject, String> keyedDS = withWatermarkDS.keyBy(jsonObj -> jsonObj.getJSONObject("common").getString("uid"));
 
         SingleOutputStreamOperator<UserLoginBean> beanDS = keyedDS.process(
+//                状态管理：使用ValueState存储每个用户的最后登录日期。
                 new KeyedProcessFunction<String, JSONObject, UserLoginBean>() {
                     private ValueState<String> lastLoginDateState;
 
@@ -104,9 +112,10 @@ public class DwsUserUserLoginWindow {
 
                         Long ts = jsonObj.getLong("ts");
                         String curLoginDate = DateFormatUtil.tsToDate(ts);
-
-                        long uuCt = 0L;
-                        long backCt = 0L;
+                        // 首次登录：若状态为空，标记为今日首次登录uuCt=1，若上次登录日期与当前日期不同，标记为今日首次登录。若上次登录日期与当前日期间隔≥8 天，标记为回流用户backCt=1
+                        //
+                        long uuCt = 0L; // 独立用户登录数
+                        long backCt = 0L; // 回流用户数
                         if (StringUtils.isNotEmpty(lastLoginDate)) {
                             if (!lastLoginDate.equals(curLoginDate)) {
                                 uuCt = 1L;
@@ -129,10 +138,12 @@ public class DwsUserUserLoginWindow {
         );
 
 //        beanDS.print();
-
+//        窗口聚合与结果处理
+//        滚动窗口：使用 10 秒的滚动事件时间窗口。
         AllWindowedStream<UserLoginBean, TimeWindow> windowDS = beanDS.windowAll(TumblingEventTimeWindows.of(Time.seconds(10)));
 
         SingleOutputStreamOperator<UserLoginBean> reduceDS = windowDS.reduce(
+//                ReduceFunction：累加窗口内的uuCt和backCt。
                 new ReduceFunction<UserLoginBean>() {
                     @Override
                     public UserLoginBean reduce(UserLoginBean value1, UserLoginBean value2) {
@@ -141,6 +152,7 @@ public class DwsUserUserLoginWindow {
                         return value1;
                     }
                 },
+//                AllWindowFunction：设置窗口的开始时间stt、结束时间edt和日期curDate
                 new AllWindowFunction<UserLoginBean, UserLoginBean, TimeWindow>() {
                     @Override
                     public void apply(TimeWindow window, Iterable<UserLoginBean> values, Collector<UserLoginBean> out) {
@@ -155,7 +167,8 @@ public class DwsUserUserLoginWindow {
                     }
                 }
         );
-
+        // 打印
+//        将UserLoginBean转换为 JSON 字符串
         SingleOutputStreamOperator<String> jsonMap = reduceDS
                 .map(new BeanToJsonStrMapFunction<>());
 

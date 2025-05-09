@@ -35,6 +35,9 @@ import org.apache.flink.util.Collector;
  * @Author lv.zirao
  * @Date 2025/4/21 14:31
  * @description: DwsTradeCartAddUuWindow
+业务含义：加购独立用户窗口表
+分析维度：统计将商品加入购物车的独立用户数
+典型指标：加购UV、加购商品品类分布
  */
 
 public class DwsTradeCartAddUuWindow {
