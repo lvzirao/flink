@@ -47,6 +47,10 @@
     <file url="file://$PROJECT_DIR$/realtime-dev3/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/stream-dmp/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/stream-dmp/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/stream-py/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/stream-py/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/stream-sensitive/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/stream-sensitive/src/main/resources" charset="UTF-8" />
   </component>
