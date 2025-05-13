@@ -11,6 +11,7 @@
     <modules>
         <module>realtime-dev1</module>
         <module>realtime-dev</module>
+        <module>realtime-dmp</module>
     </modules>
 
     <properties>
