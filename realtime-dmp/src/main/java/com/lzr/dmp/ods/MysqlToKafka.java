@@ -21,7 +21,7 @@ public class MysqlToKafka {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
-        MySqlSource<String> realtimeV1 = FlinkSourceUtil.getMySqlSource("realtime-dmp", "*");
+        MySqlSource<String> realtimeV1 = FlinkSourceUtil.getMySqlSource("realtime_dmp", "*");
 
         DataStreamSource<String> mySQLSource = env.fromSource(realtimeV1, WatermarkStrategy.noWatermarks(), "MySQL Source");
 

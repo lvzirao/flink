@@ -27,16 +27,18 @@ import java.time.format.DateTimeFormatter;
  */
 public class DwdApp {
     public static void main(String[] args) throws Exception {
+//        1. 环境初始化与数据源配置
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
         KafkaSource<String> kafkaSource = FlinkSourceUtil.getKafkaSource("topic_dmp_db", "dwd_app");
-        // 添加水位线策略，允许30秒的乱序
+        // 添加水位线策略，允许3秒的乱序
         WatermarkStrategy<String> watermarkStrategy = WatermarkStrategy
-                .<String>forBoundedOutOfOrderness(Duration.ofSeconds(30))
+                .<String>forBoundedOutOfOrderness(Duration.ofSeconds(3))
                 .withTimestampAssigner(new SerializableTimestampAssigner<String>() {
                     @Override
                     public long extractTimestamp(String element, long recordTimestamp) {
+//                        时间戳提取：从 JSON 数据中提取 ts_ms 字段作为事件时间戳；若提取失败，则使用当前系统时间。
                         try {
                             JSONObject json = JSON.parseObject(element);
                             // 从JSON中提取事件时间戳，根据实际数据结构调整
@@ -54,11 +56,12 @@ public class DwdApp {
 
         DataStreamSource<String> kafkaSource1 = env.fromSource(kafkaSource, watermarkStrategy, "kafka_source");
 //        kafkaSource1.print();
+//        过滤 Kafka 消息，仅保留来自 user_info_sup_msg 表的数据（如用户身高、体重等补充信息）
         SingleOutputStreamOperator<JSONObject> SupMsgDs = kafkaSource1.map(JSON::parseObject)
                 .filter(json->json.getJSONObject("source").getString("table").equals("user_info_sup_msg"));
 //        SupMsgDs.print();
 
-        // 统计uid,性别，身高，体重，身高单位，体重单位，创建时间
+        // 从 user_info_sup_msg 表的变更数据（after 字段）中提取用户 ID、性别、身高、体重等信息
         SingleOutputStreamOperator<JSONObject> process = SupMsgDs.process(new ProcessFunction<JSONObject, JSONObject>() {
             @Override
             public void processElement(JSONObject value, ProcessFunction<JSONObject, JSONObject>.Context ctx, Collector<JSONObject> out) throws Exception {
@@ -74,7 +77,7 @@ public class DwdApp {
             }
         });
 //        process.print();
-        // 计算年龄、年代和星座
+        // 处理 user_info 表的数据
         SingleOutputStreamOperator<JSONObject> UserInfo = kafkaSource1
                 .map(JSON::parseObject)
                 .filter(json -> {
@@ -128,24 +131,34 @@ public class DwdApp {
                 })
                 .filter(after -> !after.isEmpty());
 //        UserInfo.print();
+//        将用户主信息（UserInfo）和补充信息（SupMsgDs）按 uid 进行关联。
         SingleOutputStreamOperator<JSONObject> finalUserinfoDs = UserInfo.filter(data -> data.containsKey("uid") && !data.getString("uid").isEmpty());
-//        finalUserinfoDs.print("用户数据流");
+//        finalUserinfoDs.print();
         SingleOutputStreamOperator<JSONObject> finalUserinfoSupDs = process.filter(data -> data.containsKey("uid") && !data.getString("uid").isEmpty());
-//        finalUserinfoSupDs.print("补充数据流");
+//        finalUserinfoSupDs.print();
         KeyedStream<JSONObject, String> keyedStreamUserInfoDs = finalUserinfoDs.keyBy(data -> data.getString("uid"));
         KeyedStream<JSONObject, String> keyedStreamUserInfoSupDs = finalUserinfoSupDs.keyBy(data -> data.getString("uid"));
         SingleOutputStreamOperator<JSONObject> processIntervalJoinUserInfo6BaseMessageDs = keyedStreamUserInfoDs.intervalJoin(keyedStreamUserInfoSupDs)
+//        允许两条流的事件时间差在 ±5 分钟 内完成关联。
                 .between(Time.minutes(-5), Time.minutes(5))
+//        IntervalJoinUserInfoLabelProcessFunc 是自定义处理函数，负责合并两条流的数据（如将身高、体重信息合并到用户主信息中）
                 .process(new IntervalJoinUserInfoLabelProcessFunc());
-
         processIntervalJoinUserInfo6BaseMessageDs.print();
+
+
+
+
+
+
         env.execute("User Info Processing Job");
     }
     // 将星座计算方法移到main方法外部
+//    星座计算逻辑
+//    根据生日计算星座
     private static String calculateConstellation(int month, int day) {
         String[] constellations = {
                 "摩羯座", "水瓶座", "双鱼座", "白羊座", "金牛座", "双子座",
-                "巨蟹座", "狮子座", "处女座", "天秤座", "天蝎座", "射手座", "未知"
+                "巨蟹座", "狮子座", "处女座", "天秤座", "天蝎座", "射手座", "魔蝎座"
         };
         int[] dates = {20, 19, 21, 20, 21, 22, 23, 23, 23, 24, 23, 22};
 

@@ -84,6 +84,8 @@ public class KafkaUtils {
                 .build();
     }
 
+
+
     public static KafkaSink<String> buildKafkaSink(String bootServerList, String kafkaTopic) {
         Properties producerProperties = new Properties();
         producerProperties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootServerList);
