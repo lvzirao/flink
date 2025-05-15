@@ -2,7 +2,10 @@ package com.lzr.dmp.dwd;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.lzr.conf.utils.ConfigUtils;
+import com.lzr.conf.utils.FlinkSinkUtil;
 import com.lzr.conf.utils.FlinkSourceUtil;
+import com.lzr.conf.utils.KafkaUtils;
 import com.lzr.fun.IntervalJoinUserInfoLabelProcessFunc;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -138,6 +141,7 @@ public class DwdApp {
 //        finalUserinfoSupDs.print();
         KeyedStream<JSONObject, String> keyedStreamUserInfoDs = finalUserinfoDs.keyBy(data -> data.getString("uid"));
         KeyedStream<JSONObject, String> keyedStreamUserInfoSupDs = finalUserinfoSupDs.keyBy(data -> data.getString("uid"));
+
         SingleOutputStreamOperator<JSONObject> processIntervalJoinUserInfo6BaseMessageDs = keyedStreamUserInfoDs.intervalJoin(keyedStreamUserInfoSupDs)
 //        允许两条流的事件时间差在 ±5 分钟 内完成关联。
                 .between(Time.minutes(-5), Time.minutes(5))
@@ -145,10 +149,8 @@ public class DwdApp {
                 .process(new IntervalJoinUserInfoLabelProcessFunc());
         processIntervalJoinUserInfo6BaseMessageDs.print();
 
-
-
-
-
+//        存入kafka
+//        processIntervalJoinUserInfo6BaseMessageDs.map(JSONObject::toString).sinkTo(FlinkSinkUtil.getKafkaSink("kafka_label_base6_topic"));
 
         env.execute("User Info Processing Job");
     }

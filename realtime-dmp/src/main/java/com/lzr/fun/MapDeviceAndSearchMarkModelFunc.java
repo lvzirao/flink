@@ -37,7 +37,7 @@ public class MapDeviceAndSearchMarkModelFunc extends RichMapFunction<JSONObject,
         this.categoryMap = new HashMap<>();
         // 将 DimBaseCategory 对象存储到 Map中  加快查询
         for (DimBaseCategory category : dimBaseCategories) {
-            categoryMap.put(category.getB3name(), category);
+            categoryMap.put(category.getName3(), category);
         }
     }
 
@@ -53,6 +53,8 @@ public class MapDeviceAndSearchMarkModelFunc extends RichMapFunction<JSONObject,
 
     @Override
     public JSONObject map(JSONObject jsonObject) throws Exception {
+        // 添加时间戳
+        jsonObject.put("ts_ms", System.currentTimeMillis());
         String os = jsonObject.getString("os");
         String[] labels = os.split(",");
         String judge_os = labels[0];
@@ -78,7 +80,7 @@ public class MapDeviceAndSearchMarkModelFunc extends RichMapFunction<JSONObject,
         if (searchItem != null && !searchItem.isEmpty()) {
             DimBaseCategory category = categoryMap.get(searchItem);
             if (category != null) {
-                jsonObject.put("b1_category", category.getB1name());
+                jsonObject.put("b1_category", category.getName1());
             }
         }
         // search

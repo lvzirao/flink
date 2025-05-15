@@ -18,9 +18,9 @@ import java.io.Serializable;
 public class DimBaseCategory implements Serializable {
 
     private String id;
-    private String b3name;
-    private String b2name;
-    private String b1name;
+    private String name3;
+    private String name2;
+    private String name1;
 
 
 }

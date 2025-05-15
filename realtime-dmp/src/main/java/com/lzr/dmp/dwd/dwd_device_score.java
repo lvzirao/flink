@@ -2,9 +2,7 @@ package com.lzr.dmp.dwd;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.lzr.conf.utils.ConfigUtils;
-import com.lzr.conf.utils.FlinkSourceUtil;
-import com.lzr.conf.utils.JdbcUtil;
+import com.lzr.conf.utils.*;
 import com.lzr.domain.DimBaseCategory;
 import com.lzr.fun.MapDeviceAndSearchMarkModelFunc;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
@@ -28,6 +26,7 @@ public class dwd_device_score {
     private static final Connection connection;
     private static final double device_rate_weight_coefficient = 0.1; // 设备权重系数
     private static final double search_rate_weight_coefficient = 0.15; // 搜索权重系数
+
 
     static {
         try {
@@ -75,6 +74,9 @@ public class dwd_device_score {
 //      设备打分模型
         SingleOutputStreamOperator<JSONObject> deviceScoredStream = streamOperatorlog.map(new MapDeviceAndSearchMarkModelFunc(dim_base_categories, device_rate_weight_coefficient, search_rate_weight_coefficient));
         deviceScoredStream.print();
+        deviceScoredStream.map(JSONObject::toString).sinkTo(FlinkSinkUtil.getKafkaSink("kafka_label_base2_topic"));
+
+
 
 
         env.execute();

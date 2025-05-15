@@ -132,9 +132,8 @@ public class DwdLog {
 
         // 在写入 Kafka 前添加 map 转换步骤：
         SingleOutputStreamOperator<String> stringDataStream = win2MinutesPageLogsDs.map(JSONObject::toString);
-
-        KafkaSink<String> kafkaSink = FlinkSinkUtil.getKafkaSink("minutes_page_log");
-        stringDataStream.sinkTo(kafkaSink);
+//        KafkaSink<String> kafkaSink = FlinkSinkUtil.getKafkaSink("minutes_page_log");
+//        stringDataStream.sinkTo(kafkaSink);
 
         env.execute();
     }
