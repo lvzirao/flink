@@ -108,6 +108,7 @@ public class DwdLog {
                 return result;
             }
         });
+//        resultStream.print();
 
         // 增强过滤逻辑 - 过滤掉 uid 为 null 或 "-1" 的记录
         SingleOutputStreamOperator<JSONObject> filterNotNullUidLogPageMsg = resultStream.filter(data ->
@@ -132,7 +133,7 @@ public class DwdLog {
 
         // 在写入 Kafka 前添加 map 转换步骤：
         SingleOutputStreamOperator<String> stringDataStream = win2MinutesPageLogsDs.map(JSONObject::toString);
-//        KafkaSink<String> kafkaSink = FlinkSinkUtil.getKafkaSink("minutes_page_log");
+        KafkaSink<String> kafkaSink = FlinkSinkUtil.getKafkaSink("minutes_page_log");
 //        stringDataStream.sinkTo(kafkaSink);
 
         env.execute();

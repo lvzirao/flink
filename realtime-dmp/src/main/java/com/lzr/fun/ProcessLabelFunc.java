@@ -11,6 +11,8 @@ import org.apache.flink.util.Collector;
  * @description:
  */
 public class ProcessLabelFunc extends ProcessJoinFunction<JSONObject, JSONObject, JSONObject> {
+
+//    处理时间窗口内的双流 JOIN 操作。
     @Override
     public void processElement(JSONObject left, JSONObject right, ProcessJoinFunction<JSONObject, JSONObject, JSONObject>.Context context, Collector<JSONObject> collector) throws Exception {
 

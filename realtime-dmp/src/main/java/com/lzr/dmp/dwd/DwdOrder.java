@@ -83,7 +83,7 @@ public class DwdOrder {
 
 //        订单主表数据处理
         SingleOutputStreamOperator<JSONObject> mapOrderInfo = orderDs.map(new MapOrderInfoDataFunc());
-//        mapOrderInfo.print();
+        mapOrderInfo.print();
 //        订单明细表数据处理
         SingleOutputStreamOperator<JSONObject> mapOrderDetailDs = detailDs.map(new MapOrderDetailFunc());
 //        数据过滤与键控

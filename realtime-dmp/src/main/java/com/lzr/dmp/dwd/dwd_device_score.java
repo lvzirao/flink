@@ -74,7 +74,7 @@ public class dwd_device_score {
 //      设备打分模型
         SingleOutputStreamOperator<JSONObject> deviceScoredStream = streamOperatorlog.map(new MapDeviceAndSearchMarkModelFunc(dim_base_categories, device_rate_weight_coefficient, search_rate_weight_coefficient));
         deviceScoredStream.print();
-        deviceScoredStream.map(JSONObject::toString).sinkTo(FlinkSinkUtil.getKafkaSink("kafka_label_base2_topic"));
+//        deviceScoredStream.map(JSONObject::toString).sinkTo(FlinkSinkUtil.getKafkaSink("kafka_label_base2_topic"));
 
 
 

@@ -24,13 +24,13 @@ import java.util.Map;
  * @description: 设备打分模型
  */
 public class MapDeviceAndSearchMarkModelFunc extends RichMapFunction<JSONObject,JSONObject> {
-
+//  定义成员变量
     private final double deviceRate;
     private final double searchRate;
     private final Map<String, DimBaseCategory> categoryMap;
     private List<DimCategoryCompare> dimCategoryCompares;
     private Connection connection;
-
+//    构造函数接收商品分类列表和权重系数，初始化分类映射表
     public MapDeviceAndSearchMarkModelFunc(List<DimBaseCategory> dimBaseCategories, double deviceRate,double searchRate) {
         this.deviceRate = deviceRate;
         this.searchRate = searchRate;
@@ -41,6 +41,7 @@ public class MapDeviceAndSearchMarkModelFunc extends RichMapFunction<JSONObject,
         }
     }
 
+//    建立数据库连接并查询分类比较数据
     @Override
     public void open(Configuration parameters) throws Exception {
         connection = JdbcUtil.getMySQLConnection();
@@ -55,11 +56,13 @@ public class MapDeviceAndSearchMarkModelFunc extends RichMapFunction<JSONObject,
     public JSONObject map(JSONObject jsonObject) throws Exception {
         // 添加时间戳
         jsonObject.put("ts_ms", System.currentTimeMillis());
+        // 解析操作系统信息
         String os = jsonObject.getString("os");
         String[] labels = os.split(",");
         String judge_os = labels[0];
         jsonObject.put("judge_os", judge_os);
 
+        // 根据操作系统设置设备相关权重
         if (judge_os.equals("iOS")) {
             jsonObject.put("device_18_24", round(0.7 * deviceRate));
             jsonObject.put("device_25_29", round(0.6 * deviceRate));
@@ -76,6 +79,7 @@ public class MapDeviceAndSearchMarkModelFunc extends RichMapFunction<JSONObject,
             jsonObject.put("device_50",    round(0.3 * deviceRate));
         }
 
+        // 处理搜索项目
         String searchItem = jsonObject.getString("search_item");
         if (searchItem != null && !searchItem.isEmpty()) {
             DimBaseCategory category = categoryMap.get(searchItem);
@@ -83,7 +87,7 @@ public class MapDeviceAndSearchMarkModelFunc extends RichMapFunction<JSONObject,
                 jsonObject.put("b1_category", category.getName1());
             }
         }
-        // search
+        // search 映射搜索类别
         String b1Category = jsonObject.getString("b1_category");
         if (b1Category != null && !b1Category.isEmpty()){
             for (DimCategoryCompare dimCategoryCompare : dimCategoryCompares) {
@@ -93,11 +97,12 @@ public class MapDeviceAndSearchMarkModelFunc extends RichMapFunction<JSONObject,
                 }
             }
         }
-
+        // 根据搜索类别设置搜索相关权重
         String searchCategory = jsonObject.getString("searchCategory");
         if (searchCategory == null) {
             searchCategory = "unknown";
         }
+//        用户的搜索类别
         switch (searchCategory) {
             case "时尚与潮流":
                 jsonObject.put("search_18_24", round(0.9 * searchRate));

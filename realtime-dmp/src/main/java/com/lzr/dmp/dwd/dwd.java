@@ -25,7 +25,7 @@ import java.time.Duration;
 public class dwd {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setParallelism(1);
+        env.setParallelism(2);
 
         KafkaSource<String> kafkaSource_base6 = FlinkSourceUtil.getKafkaSource("kafka_label_base6_topic", "dwd_app_6");
         DataStreamSource<String> kafkaSource6 = env.fromSource(kafkaSource_base6, WatermarkStrategy.noWatermarks(), "kafka_source6");
@@ -76,7 +76,7 @@ public class dwd {
                 .intervalJoin(kafka_base4.keyBy(o -> o.getString("uid")))
                 .between(Time.minutes(-2), Time.minutes(2))
                 .process(new ProcessJoinBase2And4BaseFunc());
-//        join2_4Ds.print("join2_4Ds");
+        join2_4Ds.print("join2_4Ds");
 
         SingleOutputStreamOperator<JSONObject> waterJoin2_4 = join2_4Ds.assignTimestampsAndWatermarks(
                 WatermarkStrategy.<JSONObject>forBoundedOutOfOrderness(Duration.ofSeconds(5))
@@ -87,7 +87,7 @@ public class dwd {
                 .intervalJoin(kafka_base6.keyBy(o -> o.getString("uid")))
                 .between(Time.minutes(-2), Time.minutes(2))
                 .process(new ProcessLabelFunc());
-        userLabelProcessDs.print("userLabelProcessDs");
+//        userLabelProcessDs.print("userLabelProcessDs");
 
 
 

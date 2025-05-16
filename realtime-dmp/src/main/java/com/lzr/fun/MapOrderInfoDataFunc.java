@@ -19,6 +19,7 @@ public class MapOrderInfoDataFunc extends RichMapFunction<JSONObject,JSONObject>
     public JSONObject map(JSONObject jsonObject) throws Exception {
         JSONObject result = new JSONObject();
         if (jsonObject.containsKey("after")){
+            // 提取并转换字段
             JSONObject after = jsonObject.getJSONObject("after");
             result.put("ts_ms",jsonObject.getLongValue("ts_ms"));
             result.put("id",after.getString("id"));
@@ -38,6 +39,7 @@ public class MapOrderInfoDataFunc extends RichMapFunction<JSONObject,JSONObject>
         return result;
     }
 
+//    时间处理与时段划分
     private String determineLoginPeriod(long timestamp) {
         Instant instant = Instant.ofEpochMilli(timestamp);
         LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());

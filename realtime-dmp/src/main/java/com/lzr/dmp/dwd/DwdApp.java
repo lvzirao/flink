@@ -79,7 +79,7 @@ public class DwdApp {
                 out.collect(object);
             }
         });
-//        process.print();
+//        process.print("user_info_sup_msg");
         // 处理 user_info 表的数据
         SingleOutputStreamOperator<JSONObject> UserInfo = kafkaSource1
                 .map(JSON::parseObject)
@@ -133,7 +133,7 @@ public class DwdApp {
                     }
                 })
                 .filter(after -> !after.isEmpty());
-//        UserInfo.print();
+        UserInfo.print("UserInfo");
 //        将用户主信息（UserInfo）和补充信息（SupMsgDs）按 uid 进行关联。
         SingleOutputStreamOperator<JSONObject> finalUserinfoDs = UserInfo.filter(data -> data.containsKey("uid") && !data.getString("uid").isEmpty());
 //        finalUserinfoDs.print();
