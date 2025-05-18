@@ -96,6 +96,6 @@ public class DwdLabel {
                 .map(JSONObject::toString)  // 将JSONObject转为字符串
                 .writeAsText("D:\\idea\\flink\\docs\\lzr\\userLabelProcessDs.csv", FileSystem.WriteMode.OVERWRITE)
                 .setParallelism(1);  // 设置为1避免生成多个分片文件
-        env.execute();
+        env.execute("DwdLabel");
     }
 }
