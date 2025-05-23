@@ -32,6 +32,14 @@ db_config = {
     'password': 'root',
     'database': 'realtime_v1'
 }
+# 数据库配置
+db_config = {
+    'host': 'cdh03',
+    'port': 3306,
+    'user': 'root',
+    'password': 'root',
+    'database': 'realtime_v1'
+}
 
 
 class SpiderCHNAmapWeatherData:
