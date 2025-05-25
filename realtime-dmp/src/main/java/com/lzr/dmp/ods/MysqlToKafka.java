@@ -18,11 +18,12 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 public class MysqlToKafka {
     public static void main(String[] args) throws Exception {
+//       创建执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+//       设置并行度
         env.setParallelism(1);
-
+//       获取数据源
         MySqlSource<String> realtimeV1 = FlinkSourceUtil.getMySqlSource("realtime_dmp", "*");
-
         DataStreamSource<String> mySQLSource = env.fromSource(realtimeV1, WatermarkStrategy.noWatermarks(), "MySQL Source");
 
         mySQLSource.print();
