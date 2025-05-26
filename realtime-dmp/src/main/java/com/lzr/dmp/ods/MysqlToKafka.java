@@ -23,11 +23,13 @@ public class MysqlToKafka {
 //       设置并行度
         env.setParallelism(1);
 //       获取数据源
+        env.enableCheckpointing(5000);
+//        env.setRestartStrategy(FlinkSourceUtil.getRestartStrategy());
+//        env.setStateBackend(FlinkSourceUtil.getStateBackend());
+//        env.getConfig().setAutoWatermarkInterval(5000);
         MySqlSource<String> realtimeV1 = FlinkSourceUtil.getMySqlSource("realtime_dmp", "*");
         DataStreamSource<String> mySQLSource = env.fromSource(realtimeV1, WatermarkStrategy.noWatermarks(), "MySQL Source");
-
         mySQLSource.print();
-
         KafkaSink<String> topic_dmp_db = FlinkSinkUtil.getKafkaSink("topic_dmp_db");
 
         mySQLSource.sinkTo(topic_dmp_db);
