@@ -19,6 +19,7 @@ public class processOrderInfoAndDetailFunc extends KeyedProcessFunction<String, 
 
     private ValueState<Long> latestTsState;
 
+
     @Override
     public void open(Configuration parameters) {
         ValueStateDescriptor<Long> descriptor =
@@ -26,7 +27,7 @@ public class processOrderInfoAndDetailFunc extends KeyedProcessFunction<String, 
         descriptor.enableTimeToLive(StateTtlConfig.newBuilder(Time.hours(1)).build());
         latestTsState = getRuntimeContext().getState(descriptor);
     }
-
+    // 比较时间戳并更新状态
     @Override
     public void processElement(JSONObject value, Context ctx, Collector<JSONObject> out) throws Exception {
         // 获取存储的最新时间戳
@@ -34,7 +35,7 @@ public class processOrderInfoAndDetailFunc extends KeyedProcessFunction<String, 
 
         // 安全获取当前记录的时间戳
         Long currentTs = value.getLong("ts_ms");
-
+// 比较时间戳并更新状态
         // 检查时间戳字段是否存在
         if (currentTs == null) {
             // 处理时间戳缺失的情况，例如记录日志或使用其他默认值
