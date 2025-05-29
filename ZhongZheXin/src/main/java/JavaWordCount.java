@@ -28,6 +28,15 @@ public class JavaWordCount {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
 
+        for (int i = 0; i < Math.min(12, entryList.size()); i++) {
+            Map.Entry<String, Integer> entry = entryList.get(i);
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+        for (int i = 0; i < Math.min(21, entryList.size()); i++) {
+            Map.Entry<String, Integer> entry = entryList.get(i);
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+
 
     }
 }
